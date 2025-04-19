@@ -13,9 +13,10 @@ const Navbar = () => {
   return (
     <nav className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-md shadow-md z-50 px-6 py-3 rounded-full flex items-center justify-between max-w-[90%] md:max-w-3xl w-full border border-gray-200">
       {/* Brand Name */}
-      <Link to="/" className="text-blue-700 font-bold text-lg md:text-xl">
-        AItoolPack
-      </Link>
+     <Link to="/" className="flex items-center space-x-2 text-blue-700 font-bold text-lg md:text-xl">
+  <img src="./src/assets/logo.png" alt="AIToolPack Logo" className="w-6 h-6 md:w-8 md:h-8" />
+  <span>AItoolPack</span>
+</Link>
 
       {/* Navigation Links */}
       <div className="flex space-x-6 ml-auto">

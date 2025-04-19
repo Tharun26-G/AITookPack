@@ -82,48 +82,85 @@ import { useState } from "react";
        }
      };
 
-     const handleSubmit = async () => {
-       setIsSubmitting(true);
-       setMessage("");
+    const handleSubmit = async () => {
+  setIsSubmitting(true);
+  setMessage("");
 
-       try {
-         const formattedData = {
-           title: formData.title,
-           url: formData.url,
-           description: formData.description,
-           categories: formData.categories.map((c) => c.value),
-           price: formData.price,
-         };
-         const res = await axios.post(
-           `${import.meta.env.VITE_BACKEND_URL}/api/tools`,
-           formattedData
-         );
-         if (res.status === 201) {
-           setMessage("✅ Tool submitted successfully!");
-           setFormData({
-             title: "",
-             url: "",
-             description: "",
-             categories: [],
-             price: "",
-             customCategory: "",
-           });
-         } else {
-           setMessage("❌ Submission failed. Try again.");
-         }
-       } catch (err) {
-         console.error(err);
-         setMessage("❌ Oops! Please fill in all required fields.");
-       } finally {
-         setIsSubmitting(false);
-         setShowConfirm(false);
-       }
-     };
+  try {
+    const { title, url, description, categories, price } = formData;
+
+    // Step 1: Get existing tools
+    const getRes = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/tools`);
+    const tools = getRes.data;
+
+    // Step 2: Check if tool with same title or URL already exists
+    const duplicate = tools.find(
+      (tool) =>
+        tool.title.trim().toLowerCase() === title.trim().toLowerCase() ||
+        tool.url.trim().toLowerCase() === url.trim().toLowerCase()
+    );
+
+    if (duplicate) {
+      setMessage("❌ Tool with the same title or URL already exists.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Step 3: Format data for submission
+    const formattedData = {
+      title,
+      url,
+      description,
+      categories: categories.map((c) => c.value),
+      price,
+    };
+
+    // Step 4: Submit the tool
+    const postRes = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/tools`, formattedData);
+
+    if (postRes.status === 201) {
+      setMessage("✅ Tool submitted successfully!");
+      setFormData({
+        title: "",
+        url: "",
+        description: "",
+        categories: [],
+        price: "",
+        customCategory: "",
+      });
+    } else {
+      setMessage("❌ Submission failed. Try again.");
+    }
+  } catch (err) {
+    console.error(err);
+    setMessage("❌ Something went wrong. Please try again.");
+  } finally {
+    setIsSubmitting(false);
+    setShowConfirm(false);
+  }
+};
+
 
      const handleConfirmation = (e) => {
-       e.preventDefault();
-       setShowConfirm(true);
-     };
+  e.preventDefault();
+
+  const { title, url, description, categories, price } = formData;
+
+  // Basic validation
+  if (!title.trim() || !url.trim() || !description.trim() || !price || categories.length === 0) {
+    setMessage("❌ Please fill in all required fields.");
+    return;
+  }
+
+  if (categories.length > 3) {
+    setMessage("❌ You can select up to 3 categories only.");
+    return;
+  }
+
+  setMessage(""); // clear any previous error
+  setShowConfirm(true);
+};
+
 
      const truncateText = (text, maxLength) => {
        if (!text) return "";
