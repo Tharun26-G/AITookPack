@@ -11,7 +11,7 @@ const app = express();
 
 // Middleware
 const frontendUrl = process.env.FRONTEND_URL;
-app.use(cors({ origin: frontendUrl }));
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 // MongoDB Connection
