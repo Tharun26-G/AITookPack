@@ -9,4 +9,11 @@ const ToolSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("Tool", ToolSchema);
+// Ensure indexes are created
+ToolSchema.set('autoIndex', true);
+ToolSchema.index({ title: 1 }, { unique: true });
+ToolSchema.index({ url: 1 }, { unique: true });
+
+const Tool = mongoose.model("Tool", ToolSchema);
+
+module.exports = Tool;
