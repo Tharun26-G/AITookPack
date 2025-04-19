@@ -94,9 +94,10 @@ import { useState } from "react";
            categories: formData.categories.map((c) => c.value),
            price: formData.price,
          };
-
-         const res = await axios.post("http://localhost:5000/api/tools", formattedData);
-
+         const res = await axios.post(
+           `${import.meta.env.VITE_BACKEND_URL}/api/tools`,
+           formattedData
+         );
          if (res.status === 201) {
            setMessage("✅ Tool submitted successfully!");
            setFormData({

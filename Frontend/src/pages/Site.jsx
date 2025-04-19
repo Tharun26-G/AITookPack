@@ -22,41 +22,43 @@ const Site = () => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-      setSidebarOpen(window.innerWidth >= 768);
+    const fetchTools = async () => {
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/tools`);
+        setTools(res.data);
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to fetch tools. Please try again.");
+        setLoading(false);
+      }
     };
 
-    handleResize();
-    window.addEventListener("resize", handleResize);
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const fetchTools = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/tools");
-      setTools(res.data);
-      setLoading(false);
-    } catch (err) {
-      setError("Failed to fetch tools. Please try again.");
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
     fetchTools();
 
-    const ws = new WebSocket("ws://localhost:5000");
-    ws.onopen = () => console.log("WebSocket connected");
-    ws.onmessage = (event) => {
-      const newTool = JSON.parse(event.data);
-      setTools((prevTools) => [newTool, ...prevTools]);
-    };
-    ws.onclose = () => console.log("WebSocket disconnected");
-    ws.onerror = (err) => console.error("WebSocket error:", err);
+    const backendUrl = import.meta.env.VITE_BACKEND_URL; // Ensure correct env variable name
+    let wsConnection = null;
 
-    return () => ws.close();
+    if (backendUrl) {
+      // Initialize WebSocket connection
+      wsConnection = new WebSocket(backendUrl.replace("http", "ws"));
+
+      wsConnection.onopen = () => console.log("WebSocket connected");
+      wsConnection.onmessage = (event) => {
+        const newTool = JSON.parse(event.data);
+        setTools((prevTools) => [newTool, ...prevTools]);
+      };
+      wsConnection.onclose = () => console.log("WebSocket disconnected");
+      wsConnection.onerror = (err) => console.error("WebSocket error:", err);
+    } else {
+      console.error("VITE_BACKEND_URL is undefined!");
+    }
+
+    // Cleanup WebSocket on component unmount
+    return () => {
+      if (wsConnection) {
+        wsConnection.close();
+      }
+    };
   }, []);
 
   const truncateText = (text, maxLength) => {
