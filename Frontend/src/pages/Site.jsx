@@ -28,7 +28,33 @@ const Site = () => {
         setTools(res.data);
         setLoading(false);
       } catch (err) {
-        setError("Failed to fetch tools. Please try again.");
+        setError(
+  <div style={{ fontFamily: 'sans-serif', lineHeight: 1.5 }}>
+    <p>😕 Oops! We couldn’t fetch your tools this time.</p>
+    <p>
+      Don’t worry — it happens. You can{' '}
+      <button
+        onClick={() => window.location.reload()}
+        style={{
+          backgroundColor: '#007BFF',
+          color: 'white',
+          border: 'none',
+          padding: '6px 12px',
+          borderRadius: '5px',
+          cursor: 'pointer',
+          fontWeight: 'bold',
+          fontSize: '0.9rem',
+          transition: 'background-color 0.3s ease',
+        }}
+        onMouseOver={e => (e.currentTarget.style.backgroundColor = '#0069d9')}
+        onMouseOut={e => (e.currentTarget.style.backgroundColor = '#007BFF')}
+      >
+        🔄 Refresh
+      </button>{' '}
+      the page to try again.
+    </p>
+  </div>
+);
         setLoading(false);
       }
     };
